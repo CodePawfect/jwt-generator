@@ -18,5 +18,10 @@ func CreateUnsignedJwt(companyTag string, purchaseOrganisation string, role stri
 			"roles":                []string{role},
 		})
 
-	return token.SigningString()
+	jwtString, err := token.SigningString()
+	if err != nil {
+		return "", err
+	}
+
+	return jwtString + ".", nil
 }
