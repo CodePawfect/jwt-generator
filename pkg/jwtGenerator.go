@@ -4,20 +4,16 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func CreateUnsignedJwt(companyTag string, purchaseOrganisation string, role string) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodNone,
-		jwt.MapClaims{
-			"userName":             "M37272",
-			"idpId":                "M37272",
-			"uuid":                 "ea65b61e-3bde-11ec-8d3d-0242ac130003",
-			"email":                "test@smexnet.de",
-			"iss":                  "smexnet-gateway",
-			"sub":                  "M37272",
-			"purchaseOrganisation": purchaseOrganisation,
-			"companyTags":          []string{companyTag},
-			"roles":                []string{role},
-		})
+// CreateUnsignedJwt creates an unsigned JWT with the provided claims.
+func CreateUnsignedJwt(claims map[string]interface{}) (string, error) {
+	jwtClaims := jwt.MapClaims{}
+	for key, value := range claims {
+		jwtClaims[key] = value
+	}
 
+	token := jwt.NewWithClaims(jwt.SigningMethodNone, jwtClaims)
+
+	// Since we're using SigningMethodNone, we don't sign the token.
 	jwtString, err := token.SigningString()
 	if err != nil {
 		return "", err

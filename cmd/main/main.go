@@ -4,23 +4,53 @@ import (
 	"fmt"
 	"github.com/codepawfect/jwt-generator/pkg"
 	"os"
+	"strings"
 )
 
 func main() {
-	argsWithoutProg := os.Args[1:]
+	// Parse command-line arguments into a map
+	claims := parseArgs()
 
-	if len(argsWithoutProg) != 3 {
-		fmt.Println("Error: Exactly three arguments are required")
-		fmt.Println("Usage: jwt-generator companyTag purchaseOrganisation role")
+	// Create JWT with the parsed claims
+	jwtString, err := pkg.CreateUnsignedJwt(claims)
+	if err != nil {
+		fmt.Println("Error while generating JWT:", err)
 		os.Exit(1)
 	}
 
-	companyTag, purchaseOrganisation, role := argsWithoutProg[0], argsWithoutProg[1], argsWithoutProg[2]
-	jwt, err := pkg.CreateUnsignedJwt(companyTag, purchaseOrganisation, role)
+	fmt.Println(jwtString)
+}
 
-	if err != nil {
-		fmt.Println("error while generating jwt")
+// parseArgs parses command-line arguments and returns a map of claims.
+func parseArgs() map[string]interface{} {
+	argsMap := make(map[string]interface{})
+	args := os.Args[1:]
+
+	for i := 0; i < len(args); i++ {
+		arg := args[i]
+		if strings.HasPrefix(arg, "--") {
+			key := strings.TrimPrefix(arg, "--")
+
+			if i+1 < len(args) && !strings.HasPrefix(args[i+1], "--") {
+				nextArg := args[i+1]
+
+				if strings.HasPrefix(nextArg, "-list") {
+					// Handle list values
+					if i+2 < len(args) && !strings.HasPrefix(args[i+2], "--") {
+						listValues := strings.Split(args[i+2], ",")
+						argsMap[key] = listValues
+						i += 2 // Skip the list argument
+					}
+				} else {
+					// Handle single values
+					argsMap[key] = nextArg
+					i++ // Skip the next argument since it's a value for the current key
+				}
+			} else {
+				// No value provided
+				argsMap[key] = ""
+			}
+		}
 	}
-
-	fmt.Println(jwt)
+	return argsMap
 }
