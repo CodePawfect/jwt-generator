@@ -38,7 +38,7 @@ jwt-generator --key value --key -list value1,value2,...
 ### Example
 Generate a JWT with a single value for companyTag and a list for roles:
 ```bash
-jwt-generator --companyTag BAGE --purchaseOrganisation 3109 --roles -list admin,manager
+jwt-generator --organisation BMW --userFullName Max Mustermann  --roles -list admin,manager
 ```
 
 ## License
